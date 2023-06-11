@@ -27,11 +27,13 @@
               src = pkgs.fetchFromGitHub {
                 owner = "u-root";
                 repo = "u-root";
-                rev = "a87349ceb1a891511240995aa19df2630b06bcea";
-                sha256 = "1cYobng0wHU+ciY89UQhg2HMhVM+qkCNhaTSHxTL9jA=";
+                rev = "b4273b092637ad78ca07f36da43bda09d7276b6b";
+                sha256 = "K6j1xn+Pz4YTMR6eIhFr3xhEKML8rJV5GtV9J3sGx4g=";
               };
 
               vendorHash = null;
+
+              doCheck = false; # currently broken as it expects /bin/bash and /bin/ls
             };
 
             depthcharge-tools = let
