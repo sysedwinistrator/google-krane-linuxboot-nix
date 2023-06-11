@@ -50,6 +50,127 @@
                   sha256 = "sha256-JICP7+Zfn4EBg793mvXv4U4zccbM8KYJoiW1NNKFCTI=";
                 };
               };
+
+            initrd = let
+              inherit (self.packages."${system}") uroot;
+            in
+              pkgs.stdenv.mkDerivation {
+                name = "initrd.cpio.zstd";
+                inherit (uroot) src;
+                buildInputs = [pkgs.go];
+                env = {
+                  GOARCH = "arm64";
+                  GOCACHE = "/tmp/gocache";
+                  GOROOT = "${pkgs.go}/share/go";
+                };
+                buildPhase = ''
+                  ${uroot}/bin/u-root -build binary -o initrd.cpio -uroot-source $src -tmpdir $TMP -uinitcmd=boot core ./cmds/boot/boot
+                '';
+                installPhase = ''
+                  cat initrd.cpio | ${pkgs.zstd}/bin/zstd -T0 -19 | dd conv=sync bs=512 of=$out
+                '';
+              };
+
+            uImage = let
+              inherit (self.packages."${system}") kernel initrd;
+              configIts = pkgs.writeTextFile {
+                name = "config.its";
+                text = ''
+                  /*
+                   * Simple U-Boot uImage source file containing a single kernel and FDT blob
+                   */
+
+                  /dts-v1/;
+
+                  / {
+                    description = "Simple image with single Linux kernel and FDT blob";
+                    #address-cells = <1>;
+
+                    images {
+                      kernel {
+                        description = "Vanilla Linux kernel";
+                        data = /incbin/("${kernel}/Image");
+                        type = "kernel";
+                        arch = "arm64";
+                        os = "linux";
+                        compression = "none";
+                        load = <0x80000>;
+                        entry = <0x80000>;
+                        hash-1 {
+                          algo = "crc32";
+                        };
+                      };
+                      fdt-1 {
+                        description = "Flattened Device Tree blob";
+                        data = /incbin/("${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb");
+                        type = "flat_dt";
+                        arch = "arm64";
+                        compression = "none";
+                        hash-1 {
+                          algo = "crc32";
+                        };
+                      };
+                      ramdisk-1 {
+                        description = "Compressed Initramfs";
+                        data = /incbin/("${initrd}");
+                        type = "ramdisk";
+                        arch = "arm64";
+                        os = "linux";
+                        compression = "none";
+                        load = <00000000>;
+                        entry = <00000000>;
+                        hash-1 {
+                          algo = "sha1";
+                        };
+                      };
+                    };
+
+                    configurations {
+                      default = "conf-1";
+                      conf-1 {
+                        description = "Boot Linux kernel with FDT blob";
+                        kernel = "kernel";
+                        fdt = "fdt-1";
+                        ramdisk = "ramdisk-1";
+                      };
+                    };
+                  };
+                '';
+              };
+            in
+              pkgs.stdenv.mkDerivation {
+                name = "uImage";
+                unpackPhase = "true";
+                nativeBuildInputs = [
+                  pkgs.ubootTools
+                  pkgs.dtc
+                ];
+                buildPhase = ''
+                  mkimage -f ${configIts} $out
+                '';
+              };
+
+            depthcharge-image = let
+              inherit (self.packages."${system}") kernel uImage;
+              keyDir = "doc/chromium/files/devkeys";
+            in
+              pkgs.stdenv.mkDerivation {
+                name = "depthcharge-image";
+                inherit (pkgs.ubootTools) src;
+                configurePhase = "true";
+                nativeBuildInputs = [
+                  pkgs.ubootTools
+                  pkgs.dtc
+                  pkgs.vboot_reference
+                ];
+                buildPhase = ''
+                  echo foo > dummy
+                  echo > config.dummy
+                  mkdir -p $out/image
+                  futility vbutil_kernel --pack $out/image/image --keyblock ${keyDir}/kernel.keyblock --signprivate ${keyDir}/kernel_data_key.vbprivk --bootloader dummy --vmlinuz ${uImage} --config config.dummy --arch arm64 --version 1
+                '';
+                installPhase = "true";
+              };
           };
         }
       )
