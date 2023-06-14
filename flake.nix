@@ -148,7 +148,7 @@
 
       hydraJobs = {
         nixosConfigurations = mapAttrs (name: value: nixpkgs.lib.hydraJob value.config.system.build.toplevel) self.nixosConfigurations;
-        packages.x86_64-linux = mapAttrs (name: value: nixpkgs.lib.hydraJob value.config.system.build.toplevel) self.packages.x86_64-linux;
+        packages.x86_64-linux = mapAttrs (name: value: nixpkgs.lib.hydraJob value) self.packages.x86_64-linux;
       };
     };
 }
