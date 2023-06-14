@@ -10,10 +10,16 @@
     flake-utils,
   }: let
     inherit (nixpkgs.lib.attrsets) recursiveUpdate;
+    eachSystem = expr:
+      flake-utils.lib.eachSystem [
+        flake-utils.lib.system.aarch64-linux
+        flake-utils.lib.system.x86_64-linux
+      ]
+      expr;
   in
     (recursiveUpdate (
         # tooling, compiled for host system
-        flake-utils.lib.eachDefaultSystem (
+        eachSystem (
           system: let
             pkgs = import nixpkgs {inherit system;};
             inherit (pkgs) callPackage;
@@ -94,7 +100,7 @@
         )
       ) (
         # packages, compiled for arm64
-        flake-utils.lib.eachDefaultSystem (system: let
+        eachSystem (system: let
           pkgs =
             if system == "aarch64-linux"
             then import nixpkgs {inherit system;}
