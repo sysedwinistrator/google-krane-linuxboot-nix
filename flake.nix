@@ -9,6 +9,7 @@
     nixpkgs,
     flake-utils,
   }: let
+    inherit (builtins) mapAttrs;
     inherit (nixpkgs.lib.attrsets) recursiveUpdate;
     eachSystem = expr:
       flake-utils.lib.eachSystem [
@@ -143,6 +144,11 @@
             ];
           })
         ];
+      };
+
+      hydraJobs = {
+        nixosConfigurations = mapAttrs (name: value: nixpkgs.lib.hydraJob value.config.system.build.toplevel) self.nixosConfigurations;
+        packages.x86_64-linux = mapAttrs (name: value: nixpkgs.lib.hydraJob value.config.system.build.toplevel) self.packages.x86_64-linux;
       };
     };
 }
