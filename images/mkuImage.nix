@@ -29,7 +29,7 @@
             os = "linux";
             compression = "${kernelCompression}";
             hash-1 {
-              algo = "sha1";
+              algo = "crc32";
             };
           };
           fdt-1 {
@@ -39,7 +39,7 @@
             arch = "arm64";
             compression = "${dtbCompression}";
             hash-1 {
-              algo = "sha1";
+              algo = "crc32";
             };
           };
           ramdisk-1 {
@@ -50,7 +50,7 @@
             os = "linux";
             compression = "${initrdCompression}";
             hash-1 {
-              algo = "sha1";
+              algo = "crc32";
             };
           };
         };
