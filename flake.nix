@@ -188,18 +188,6 @@
               "cros-ec-keyb"
               "sbs-battery"
             ];
-
-            boot.kernelPatches = [
-              {
-                name = "display";
-                patch = ./01-RESEND-v2-1-2-drm-panel-Add-inx-Himax8279d-MIPI-DSI-LCD-panel-driver.patch;
-                structuredExtraConfig = let
-                  inherit (pkgs.lib.kernel) freeform module no option unset whenHelpers yes;
-                in {
-                  DRM_PANEL_INNOLUX_HIMAX8279D = yes;
-                };
-              }
-            ];
           })
         ];
       };
