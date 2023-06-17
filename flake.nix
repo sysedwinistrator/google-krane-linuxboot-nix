@@ -66,12 +66,12 @@
                 };
 
               linuxboot-uimg-pm = let
-                inherit (self.packages."${system}") pmKernel linuxboot-initrd;
+                inherit (self.packages."${system}") pmKernel linuxboot-initrd-pm;
               in
                 callPackage ./images/mkuImage.nix {
                   kernelPath = "${pmKernel}/boot/Image";
                   dtbPath = "${pmKernel}/boot/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
-                  initrdPath = linuxboot-initrd;
+                  initrdPath = linuxboot-initrd-pm;
                 };
 
               nixos-uimg = let
