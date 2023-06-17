@@ -15,7 +15,7 @@ stdenv.mkDerivation {
     util-linux
   ];
   buildPhase = ''
-    gap=2048 # blocks
+    gap=8192 # blocks
 
     # calculate size of partitions and images in blocks
     bootSizeBlocks=$(du -B 512 --apparent-size ${bootImg} | awk '{ print $1 }')
