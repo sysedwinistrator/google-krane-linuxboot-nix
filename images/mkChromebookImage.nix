@@ -20,22 +20,16 @@ stdenv.mkDerivation {
     # calculate size of partitions and images in blocks
     bootSizeBlocks=$(du -B 512 --apparent-size ${bootImg} | awk '{ print $1 }')
     rootSizeBlocks=$(du -B 512 --apparent-size ${rootImg} | awk '{ print $1 }')
-    imageSize=$((bootSizeBlocks * 512 + rootSizeBlocks * 512 + gap * 512))
+    imageSize=$((bootSizeBlocks * 512 + rootSizeBlocks * 512 + gap * 512 + gap * 512))
 
     # create empty image
     img=$out
     truncate -s $imageSize $img
 
     # partition
-    sfdisk $img <<EOF
-        label: gpt
-
-        start=$gap, size=$bootSizeBlocks
-        start=$((gap + bootSizeBlocks))
-    EOF
-
-    # add bootloader metadata for first partition
-    cgpt add -i 1 -t kernel -S 1 -T 5 -P 15 $img
+    parted --script $img mklabel gpt
+    cgpt add -i 1 -t kernel -l Kernel -b $gap -s $bootSizeBlocks -S 1 -T 5 -P 10 $img
+    cgpt add -i 2 -t data -l NIXOS -b $((bootSizeBlocks + gap)) -s $rootSizeBlocks $img
 
     # flash boot img
     eval $(partx $img -o START,SECTORS --nr 1 --pairs)
