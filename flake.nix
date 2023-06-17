@@ -100,12 +100,12 @@
 
               linuxboot-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg;
-                kernelCmdline = "console=ttyS0,115200";
+                kernelCmdline = "console=ttyS0 console=tty0 init=/init";
               };
 
               linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg-pm;
-                kernelCmdline = "kern_guid=%U console=null";
+                kernelCmdline = "console=ttyS0 console=tty0 init=/init";
               };
 
               linuxboot-depthcharge-img-tools = let
