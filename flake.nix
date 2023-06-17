@@ -35,12 +35,42 @@
                 uroot = self.packages."${system}".uroot;
               };
 
+              linuxboot-initrd-pm = callPackage ./images/linuxboot/initrd.nix {
+                kernelPackage = self.packages."${system}".pmKernel;
+                uroot = self.packages."${system}".uroot;
+              };
+
+              pmKernel = pkgs.stdenv.mkDerivation {
+                name = "pmkernelapk";
+                src = pkgs.fetchurl {
+                  url = "https://mirror.postmarketos.org/postmarketos/master/aarch64/linux-postmarketos-mediatek-mt8183-6.1.28-r1.apk";
+                  sha256 = "sha256-1LUxPVOAA86lB6Xmqzyatlwtqp1f1KU8Tctp3DJgVwk=";
+                };
+                unpackPhase = "true";
+                buildPhase = "true";
+                installPhase = ''
+                  mkdir $out
+                  tar -C $out -xf $src
+                  cat $out/boot/vmlinuz | gzip -d > $out/boot/Image
+                '';
+                fixupPhase = "true";
+              };
+
               linuxboot-uimg = let
                 inherit (self.packages."${system}") kernel linuxboot-initrd;
               in
                 callPackage ./images/mkuImage.nix {
                   kernelPath = "${kernel}/Image";
                   dtbPath = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
+                  initrdPath = linuxboot-initrd;
+                };
+
+              linuxboot-uimg-pm = let
+                inherit (self.packages."${system}") pmKernel linuxboot-initrd;
+              in
+                callPackage ./images/mkuImage.nix {
+                  kernelPath = "${pmKernel}/boot/Image";
+                  dtbPath = "${pmKernel}/boot/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
                   initrdPath = linuxboot-initrd;
                 };
 
@@ -55,7 +85,7 @@
 
               nixos-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".nixos-uimg;
-                kernelCmdline = "init=${self.nixosConfigurations.live.config.system.build.toplevel}/init console=tty0 console=tty1";
+                kernelCmdline = "init=${self.nixosConfigurations.live.config.system.build.toplevel}/init console=ttyS0 console=tty0 console=tty1";
               };
 
               nixos-depthcharge-img-tools = let
@@ -70,7 +100,12 @@
 
               linuxboot-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg;
-                kernelCmdline = "console=tty0";
+                kernelCmdline = "console=ttyS0,115200";
+              };
+
+              linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
+                uimg = self.packages."${system}".linuxboot-uimg-pm;
+                kernelCmdline = "kern_guid=%U console=null";
               };
 
               linuxboot-depthcharge-img-tools = let
@@ -81,6 +116,20 @@
                   dtb = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
                   initrd = linuxboot-initrd;
                   inherit depthcharge-tools;
+                };
+
+              linuxboot-image = let
+                inherit (self.packages."${system}") linuxboot-depthcharge-img;
+              in
+                callPackage ./images/mkChromebookImage.nix {
+                  bootImg = "${linuxboot-depthcharge-img}/image/image";
+                };
+
+              linuxboot-image-pm = let
+                inherit (self.packages."${system}") linuxboot-depthcharge-img-pm;
+              in
+                callPackage ./images/mkChromebookImage.nix {
+                  bootImg = "${linuxboot-depthcharge-img-pm}/image/image";
                 };
 
               nixos-rootfs = callPackage "${nixpkgs.outPath}/nixos/lib/make-ext4-fs.nix" {
