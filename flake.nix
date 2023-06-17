@@ -180,6 +180,14 @@
             boot.loader.generic-extlinux-compatible.enable = true;
             boot.consoleLogLevel = pkgs.lib.mkDefault 7;
 
+            boot.initrd.kernelModules = [
+              "gpu-sched"
+              "i2c-hid-of"
+              "hid-multitouch"
+              "cros-ec-keyb"
+              "sbs-battery"
+            ];
+
             boot.kernelPatches = [
               {
                 name = "display";
