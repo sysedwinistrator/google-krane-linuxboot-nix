@@ -80,7 +80,7 @@
                 callPackage ./images/mkuImage.nix {
                   kernelPath = "${kernel}/Image";
                   dtbPath = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
-                  initrdPath = "${initialRamdisk}/initrd.zst";
+                  initrdPath = "${initialRamdisk}/initrd";
                 };
 
               nixos-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
@@ -180,6 +180,7 @@
             boot.loader.generic-extlinux-compatible.enable = true;
             boot.consoleLogLevel = pkgs.lib.mkDefault 7;
 
+            boot.initrd.compressor = "cat";
             boot.initrd.kernelModules = [
               "gpu-sched"
               "i2c-hid-of"
