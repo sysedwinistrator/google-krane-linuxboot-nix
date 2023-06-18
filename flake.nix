@@ -171,7 +171,7 @@
           "${nixpkgs.outPath}/nixos/modules/profiles/base.nix"
           "${nixpkgs.outPath}/nixos/modules/profiles/all-hardware.nix"
           "${nixpkgs.outPath}/nixos/modules/profiles/installation-device.nix"
-          ({...}: {
+          ({config, ...}: {
             fileSystems."/" = {
               device = "/dev/disk/by-label/NIXOS_LIVE";
               fsType = "ext4";
@@ -188,6 +188,33 @@
               "cros-ec-keyb"
               "sbs-battery"
             ];
+
+            boot.postBootCommands = ''
+              # On the first boot do some maintenance tasks
+              if [ -f /nix-path-registration ]; then
+                set -euo pipefail
+                set -x
+                # Figure out device names for the boot device and root filesystem.
+                rootPart=$(${pkgs.util-linux}/bin/findmnt -n -o SOURCE /)
+                bootDevice=$(lsblk -npo PKNAME $rootPart)
+                partNum=$(lsblk -npo MAJ:MIN $rootPart | ${pkgs.gawk}/bin/awk -F: '{print $2}')
+
+                # Resize the root partition and the filesystem to fit the disk
+                echo ",+," | sfdisk -N$partNum --no-reread $bootDevice
+                ${pkgs.parted}/bin/partprobe
+                ${pkgs.e2fsprogs}/bin/resize2fs $rootPart
+
+                # Register the contents of the initial Nix store
+                ${config.nix.package.out}/bin/nix-store --load-db < /nix-path-registration
+
+                # nixos-rebuild also requires a "system" profile and an /etc/NIXOS tag.
+                touch /etc/NIXOS
+                ${config.nix.package.out}/bin/nix-env -p /nix/var/nix/profiles/system --set /run/current-system
+
+                # Prevents this from running on later boots.
+                rm -f /nix-path-registration
+              fi
+            '';
           })
         ];
       };
