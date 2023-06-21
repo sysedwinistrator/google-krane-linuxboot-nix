@@ -3,6 +3,8 @@
   stdenv,
   go,
   uroot,
+  extraFiles ? [],
+  uinitcmd ? "boot",
 }:
 stdenv.mkDerivation {
   name = "initrd.cpio.zstd";
@@ -13,7 +15,9 @@ stdenv.mkDerivation {
     GOCACHE = "/tmp/gocache";
     GOROOT = "${go}/share/go";
   };
-  buildPhase = ''
-    ${uroot}/bin/u-root -build binary -o $out -uroot-source $src -tmpdir $TMP -uinitcmd=boot -files ${kernelPackage}/lib:/lib core ./cmds/boot/boot
+  buildPhase = let
+    extraFileArg = builtins.concatStringsSep " " (builtins.map (file: "-files ${file}") extraFiles);
+  in ''
+    ${uroot}/bin/u-root -build binary -o $out -uroot-source $src -tmpdir $TMP -uinitcmd="${uinitcmd}" -files ${kernelPackage}/lib:/lib ${extraFileArg} core ./cmds/boot/boot
   '';
 }
