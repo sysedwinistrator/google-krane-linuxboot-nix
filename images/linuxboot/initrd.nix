@@ -18,6 +18,6 @@ stdenv.mkDerivation {
   buildPhase = let
     extraFileArg = builtins.concatStringsSep " " (builtins.map (file: "-files ${file}") extraFiles);
   in ''
-    ${uroot}/bin/u-root -build binary -o $out -uroot-source $src -tmpdir $TMP -uinitcmd="${uinitcmd}" -files ${kernelPackage}/lib:/lib ${extraFileArg} core ./cmds/boot/boot
+    ${uroot}/bin/u-root -build binary -o $out -uroot-source $src -tmpdir $TMP -uinitcmd="${uinitcmd}" ${extraFileArg} core ./cmds/boot/boot
   '';
 }
