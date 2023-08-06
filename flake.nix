@@ -390,6 +390,8 @@
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJNW41pUgA356Qnuia0EX9939R5DFlZb+6MHi95Vm+oK cepheus"
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOCmJ7RS1nKlNjY307l6ox3w7UttNBl3we/ReYNhEdrC edwin@heraclitus"
             ];
+
+            environment.systemPackages = [self.packages.aarch64-linux.modscan];
           })
         ];
       };
