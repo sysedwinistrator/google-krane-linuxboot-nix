@@ -1,5 +1,4 @@
 {
-  kernelPackage,
   stdenv,
   go,
   uroot,
