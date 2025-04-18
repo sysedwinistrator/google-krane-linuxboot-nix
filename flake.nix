@@ -26,15 +26,13 @@
             inherit (pkgs) callPackage;
           in {
             packages = {
-              uroot = callPackage ./pkgs/u-root.nix {};
-
               depthcharge-tools = callPackage ./pkgs/depthcharge-tools.nix {};
 
               linuxboot-initrd = let
                 inherit (self.packages."${system}") kernel modscan;
               in
                 callPackage ./images/linuxboot/initrd.nix {
-                  uroot = self.packages."${system}".uroot;
+                  uroot = pkgs.u-root;
                   extraFiles = [
                     "${kernel}/lib/modules/${kernel.modDirVersion}:/lib/modules/${kernel.modDirVersion}"
                     "${modscan}/bin/modscan:/bin/modscan"
