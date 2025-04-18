@@ -31,13 +31,15 @@
               depthcharge-tools = callPackage ./pkgs/depthcharge-tools.nix {};
 
               linuxboot-initrd = let
-                inherit (self.packages."${system}") kernel;
+                inherit (self.packages."${system}") kernel modscan;
               in
                 callPackage ./images/linuxboot/initrd.nix {
                   uroot = self.packages."${system}".uroot;
                   extraFiles = [
-                    "${kernel}/lib/modules/${kernel.modDirVersion}:/lib/modules"
+                    "${kernel}/lib/modules/${kernel.modDirVersion}:/lib/modules/${kernel.modDirVersion}"
+                    "${modscan}/bin/modscan:/bin/modscan"
                   ];
+                  uinitcmd = "/bin/modscan load -k ${kernel.modDirVersion} && boot";
                 };
 
               linuxboot-initrd-pm = let
