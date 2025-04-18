@@ -195,6 +195,13 @@
                   bootImg = "${linuxboot-depthcharge-img}/image/image";
                 };
 
+              linuxboot-image-tools = let
+                inherit (self.packages."${system}") linuxboot-depthcharge-img-tools;
+              in
+                callPackage ./images/mkChromebookImage.nix {
+                  bootImg = "${linuxboot-depthcharge-img-tools}/image/image";
+                };
+
               linuxboot-image-pm = let
                 inherit (self.packages."${system}") linuxboot-depthcharge-img-pm;
               in
