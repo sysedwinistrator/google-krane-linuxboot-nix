@@ -237,7 +237,7 @@
         in {
           packages = {
             kernel = nixpkgs.legacyPackages."aarch64-linux".linux;
-            modscan = pkgs.pkgsStatic.buildGoModule rec {
+            modscan = pkgs.buildGoModule rec {
               pname = "modscan";
               version = src.rev;
               src = pkgs.fetchFromGitHub {
@@ -247,7 +247,6 @@
                 sha256 = "sha256-U5xdQESgqpA/nyIAK6ifjTkKbvg42bN11FjxAWgA9SQ=";
               };
               vendorHash = null;
-              CGO_ENABLED = 0;
             };
           };
         })
