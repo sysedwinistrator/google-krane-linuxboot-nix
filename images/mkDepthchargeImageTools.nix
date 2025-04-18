@@ -8,6 +8,7 @@
   dtc,
   vboot_reference,
   depthcharge-tools,
+  cmdline,
 }:
 stdenv.mkDerivation {
   name = "depthcharge-image";
@@ -21,6 +22,6 @@ stdenv.mkDerivation {
   ];
   buildPhase = ''
     mkdir -p $out/image
-    mkdepthcharge -v -o $out/image/image --tmpdir $TMPDIR -A arm64 -C none --keydir ${keyDir} -d ${kernel} -i ${initrd} -b ${dtb}
+    mkdepthcharge -v -o $out/image/image --tmpdir $TMPDIR -A arm64 -C none --keydir ${keyDir} -d ${kernel} -i ${initrd} -b ${dtb} --cmdline "${cmdline}" --pad-vmlinuz
   '';
 }

@@ -185,6 +185,7 @@
                   dtb = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
                   initrd = linuxboot-initrd;
                   inherit depthcharge-tools;
+                  cmdline = "console=ttyS0,115200 console=ttyS1,115200 console=tty0 console=tty1 init=/bin/init";
                 };
 
               linuxboot-image = let
