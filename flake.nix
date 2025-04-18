@@ -238,7 +238,7 @@
               };
         in {
           packages = {
-            kernel = nixpkgs.legacyPackages."aarch64-linux".linux_6_4;
+            kernel = nixpkgs.legacyPackages."aarch64-linux".linux;
             modscan = pkgs.pkgsStatic.buildGoModule rec {
               pname = "modscan";
               version = src.rev;
