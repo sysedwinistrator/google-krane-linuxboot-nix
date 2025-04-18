@@ -32,12 +32,20 @@
                 inherit (self.packages."${system}") kernel modscan;
               in
                 callPackage ./images/linuxboot/initrd.nix {
-                  uroot = pkgs.u-root;
-                  extraFiles = [
-                    "${kernel}/lib/modules/${kernel.modDirVersion}:/lib/modules/${kernel.modDirVersion}"
-                    "${modscan}/bin/modscan:/bin/modscan"
+                  paths = [
+                    {
+                      src = "${pkgs.u-root-cmds}/";
+                      dest = "/";
+                    }
+                    {
+                      src = "${kernel}/lib/modules/${kernel.modDirVersion}/";
+                      dest = "/lib/modules/${kernel.modDirVersion}";
+                    }
+                    {
+                      src = "${modscan}/";
+                      dest = "/";
+                    }
                   ];
-                  uinitcmd = "/bin/modscan load -k ${kernel.modDirVersion} && boot";
                 };
 
               linuxboot-initrd-pm = let

@@ -1,22 +1,27 @@
 {
   stdenv,
-  go,
-  uroot,
-  extraFiles ? [],
-  uinitcmd ? "boot",
+  cpio,
+  zstd,
+  paths ? [],
 }:
 stdenv.mkDerivation {
   name = "initrd.cpio.zstd";
-  inherit (uroot) src;
-  buildInputs = [go];
-  env = {
-    GOARCH = "arm64";
-    GOCACHE = "/tmp/gocache";
-    GOROOT = "${go}/share/go";
-  };
+  # No source to unpack
+  unpackPhase = "true";
   buildPhase = let
-    extraFileArg = builtins.concatStringsSep " " (builtins.map (file: "-files ${file}") extraFiles);
+    copyCmds =
+      builtins.map (path: ''
+        mkdir -p $tmpdir/${path.dest}
+        cp -rL ${path.src} $tmpdir/${path.dest}
+      '')
+      paths;
+
+    copyCmdsString = builtins.concatStringsSep "\n" copyCmds;
   in ''
-    ${uroot}/bin/u-root -build binary -o $out -uroot-source $src -tmpdir $TMP -uinitcmd="${uinitcmd}" ${extraFileArg} core ./cmds/boot/boot
+    export tmpdir=$(mktemp -d)
+
+    ${copyCmdsString}
+
+    find $tmpdir | ${cpio}/bin/cpio -ov | ${zstd}/bin/zstd -19 -T0 > $out
   '';
 }
