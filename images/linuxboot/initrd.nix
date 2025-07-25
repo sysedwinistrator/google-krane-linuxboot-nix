@@ -23,6 +23,7 @@ stdenv.mkDerivation {
 
     ${copyCmdsString}
 
-    find $tmpdir | ${cpio}/bin/cpio -ov | ${zstd}/bin/zstd -19 -T0 > $out
+    cd $tmpdir
+    find | ${cpio}/bin/cpio -ov | ${zstd}/bin/zstd -19 -T0 > $out
   '';
 }
