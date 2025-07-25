@@ -118,65 +118,10 @@
                   inherit (self.packages."${system}") depthcharge-tools;
                 };
 
-              linuxboot-depthcharge-img = let
-                kernelModulesToLoad = [
-                  "8021q"
-                  "at24"
-                  "ath10k_sdio"
-                  "bridge"
-                  "cmdlinepart"
-                  "coresight_cpu_debug"
-                  "cros_ec_chardev"
-                  "cros_ec_debugfs"
-                  "cros_ec_dev"
-                  "cros_ec_keyb"
-                  "cros_ec_light_prox"
-                  "cros_ec_sensors"
-                  "cros_ec_spi"
-                  "cros_ec_sysfs"
-                  "cros_ec_typec"
-                  "cros_usbpd_charger"
-                  "cros_usbpd_logger"
-                  "dm_mod"
-                  "extcon_usbc_cros_ec"
-                  "governor_passive"
-                  "hci_uart"
-                  "hid_google_hammer"
-                  "hid_multitouch"
-                  "i2c_cros_ec_tunnel"
-                  "i2c_hid_of"
-                  "joydev"
-                  "macvlan"
-                  "mediatek_drm"
-                  "mousedev"
-                  "mt6577_auxadc"
-                  "mtk_cci_devfreq"
-                  "mtk_jpeg"
-                  "mtk_mdp3"
-                  "mtk_pmic_keys"
-                  "panel_boe_tv101wum_nl6"
-                  "panfrost"
-                  "polyval_ce"
-                  "pwm_bl"
-                  "pwm_mediatek"
-                  "sbs_battery"
-                  "snd_soc_bt_sco"
-                  "snd_soc_max98357a"
-                  "snd_soc_mt6358"
-                  "snd_soc_mt8183_afe"
-                  "spi_mt65xx"
-                  "tap"
-                  "thermal_generic_adc"
-                  "tpm_tis_spi"
-                  "uas"
-                  "uio_pdrv_genirq"
-                  "xt_tcpudp"
-                ];
-              in
-                callPackage ./images/mkDepthchargeImage.nix {
-                  uimg = self.packages."${system}".linuxboot-uimg;
-                  kernelCmdline = "console=ttyS0 console=tty0 init=/bin/init modules_load=${concatStringsSep "," kernelModulesToLoad}";
-                };
+              linuxboot-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
+                uimg = self.packages."${system}".linuxboot-uimg;
+                kernelCmdline = "console=ttyS0,115200n8 init=/bin/init";
+              };
 
               linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg-pm;
