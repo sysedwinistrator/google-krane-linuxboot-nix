@@ -175,12 +175,12 @@
               in
                 callPackage ./images/mkDepthchargeImage.nix {
                   uimg = self.packages."${system}".linuxboot-uimg;
-                  kernelCmdline = "console=ttyS0 console=tty0 init=/init modules_load=${concatStringsSep "," kernelModulesToLoad}";
+                  kernelCmdline = "console=ttyS0 console=tty0 init=/bin/init modules_load=${concatStringsSep "," kernelModulesToLoad}";
                 };
 
               linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg-pm;
-                kernelCmdline = "console=ttyS0 console=tty0 init=/init";
+                kernelCmdline = "console=ttyS0 console=tty0 init=/bin/init";
               };
 
               linuxboot-depthcharge-img-tools = let
