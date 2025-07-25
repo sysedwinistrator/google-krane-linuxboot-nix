@@ -1,6 +1,7 @@
 {
   stdenv,
   cpio,
+  rsync,
   zstd,
   paths ? [],
 }:
@@ -12,7 +13,7 @@ stdenv.mkDerivation {
     copyCmds =
       builtins.map (path: ''
         mkdir -p $tmpdir/${path.dest}
-        cp -rL ${path.src} $tmpdir/${path.dest}
+        ${rsync}/bin/rsync -rvLt ${path.src} $tmpdir/${path.dest}
       '')
       paths;
 
