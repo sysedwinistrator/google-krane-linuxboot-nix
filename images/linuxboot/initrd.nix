@@ -23,6 +23,6 @@ stdenv.mkDerivation {
     ${copyCmdsString}
 
     cd $tmpdir
-    find | ${cpio}/bin/cpio -ov > $out
+    find | ${cpio}/bin/cpio -ov --format=newc > $out
   '';
 }
