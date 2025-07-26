@@ -24,6 +24,6 @@ stdenv.mkDerivation {
   buildPhase = let
     extraFileArgs = builtins.concatStringsSep " " (map (path: "-files ${path.src}:${path.dest}") extraPaths);
   in ''
-    u-root -v -o $out -build gbb -uinitcmd=/bin/gosh -defaultsh=/bin/gosh ${extraFileArgs} core boot
+    u-root -v -o $out -build gbb -uinitcmd=/bbin/gosh -defaultsh=/bbin/gosh ${extraFileArgs} core boot
   '';
 }
