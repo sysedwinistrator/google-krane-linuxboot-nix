@@ -2,11 +2,10 @@
   stdenv,
   cpio,
   rsync,
-  zstd,
   paths ? [],
 }:
 stdenv.mkDerivation {
-  name = "initrd.cpio.zstd";
+  name = "initrd.cpio";
   # No source to unpack
   unpackPhase = "true";
   buildPhase = let
@@ -24,6 +23,6 @@ stdenv.mkDerivation {
     ${copyCmdsString}
 
     cd $tmpdir
-    find | ${cpio}/bin/cpio -ov | ${zstd}/bin/zstd -19 -T0 > $out
+    find | ${cpio}/bin/cpio -ov > $out
   '';
 }

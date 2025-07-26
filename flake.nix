@@ -83,7 +83,6 @@
                   kernelPath = "${kernel}/Image";
                   dtbPath = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
                   initrdPath = linuxboot-initrd;
-                  initrdCompression = "zstd";
                 };
 
               linuxboot-uimg-pm = let
