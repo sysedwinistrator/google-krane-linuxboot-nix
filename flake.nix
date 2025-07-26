@@ -39,6 +39,7 @@
                   text = ''
                     modscan load
                     insmod ${kernelModDir}/kernel/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.ko.xz
+                    getty tty0
                     exec gosh
                   '';
                 };
