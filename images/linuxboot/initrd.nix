@@ -11,7 +11,14 @@ stdenv.mkDerivation {
   buildPhase = let
     copyCmds =
       builtins.map (path: ''
-        mkdir -p $tmpdir/${path.dest}
+        if [ -d ${path.src} ]; then
+          mkdir -p $tmpdir/${path.dest}
+        else
+          _dirname=$(dirname ${path.dest})
+          mkdir -p $tmpdir/$_dirname
+          # Ensure target directory is writable
+          chmod 755 $tmpdir/$_dirname
+        fi
         ${rsync}/bin/rsync -rvLt ${path.src} $tmpdir/${path.dest}
       '')
       paths;

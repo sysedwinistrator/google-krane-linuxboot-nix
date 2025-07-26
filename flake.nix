@@ -32,20 +32,46 @@
                 inherit (self.packages."${system}") kernel modscan;
               in
                 callPackage ./images/linuxboot/initrd.nix {
-                  paths = [
-                    {
-                      src = "${pkgs.u-root-cmds}/";
-                      dest = "/";
-                    }
-                    {
-                      src = "${kernel}/lib/modules/${kernel.modDirVersion}/";
-                      dest = "/lib/modules/${kernel.modDirVersion}";
-                    }
-                    {
-                      src = "${modscan}/";
-                      dest = "/";
-                    }
-                  ];
+                  paths =
+                    [
+                      {
+                        src = "${kernel}/lib/modules/${kernel.modDirVersion}/";
+                        dest = "/lib/modules/${kernel.modDirVersion}";
+                      }
+                      {
+                        src = "${modscan}/";
+                        dest = "/";
+                      }
+                    ]
+                    ++ map (cmd: {
+                      src = "${pkgs.u-root-cmds}/bin/${cmd}";
+                      dest = "/bin/${cmd}";
+                    }) [
+                      "boot"
+                      "cat"
+                      "chmod"
+                      "cp"
+                      "dirname"
+                      "dmesg"
+                      "du"
+                      "echo"
+                      "false"
+                      "getty"
+                      "gosh"
+                      "grep"
+                      "init"
+                      "insmod"
+                      "lsmod"
+                      "mkdir"
+                      "mount"
+                      "mv"
+                      "poweroff"
+                      "rm"
+                      "rmmod"
+                      "true"
+                      "umount"
+                      "uname"
+                    ];
                 };
 
               linuxboot-initrd-pm = let
