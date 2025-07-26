@@ -2,6 +2,7 @@
   stdenv,
   u-root,
   go,
+  extraPaths,
 }:
 stdenv.mkDerivation {
   name = "initrd.cpio";
@@ -20,7 +21,9 @@ stdenv.mkDerivation {
     export GOSUMDB=off
   '';
 
-  buildPhase = ''
-    u-root -v -o $out -build gbb -uinitcmd=/bin/gosh -defaultsh=/bin/gosh core boot
+  buildPhase = let
+    extraFileArgs = builtins.concatStringsSep " " (map (path: "-files ${path.src}:${path.dest}") extraPaths);
+  in ''
+    u-root -v -o $out -build gbb -uinitcmd=/bin/gosh -defaultsh=/bin/gosh ${extraFileArgs} core boot
   '';
 }
