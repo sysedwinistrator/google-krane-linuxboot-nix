@@ -1,4 +1,5 @@
 {
+  lib,
   uimg,
   kernelCmdline ? "",
   kernelKeyblock ? "${vboot_reference}/share/vboot/devkeys/kernel.keyblock",
@@ -18,7 +19,7 @@ stdenv.mkDerivation {
   ];
   buildPhase = ''
     dd if=/dev/zero of=bootloader.bin bs=512 count=1
-    echo "${kernelCmdline}" > config
+    echo ${lib.escapeShellArg kernelCmdline} > config
     mkdir -p $out/image
     futility vbutil_kernel --pack $out/image/image --keyblock ${kernelKeyblock} --signprivate ${signPrivate} --bootloader bootloader.bin --vmlinuz ${uimg} --config config --arch aarch64 --version 1
   '';

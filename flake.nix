@@ -30,16 +30,32 @@
 
               linuxboot-initrd = let
                 inherit (self.packages."${system}") kernel modscan;
+
+                kernelModDir = "/lib/modules/${kernel.modDirVersion}";
+
+                # Script to be sourced by gosh after init
+                postInitScript = pkgs.writeTextFile {
+                  name = "linuxboot-post-init-script";
+                  text = ''
+                    modscan load
+                    insmod ${kernelModDir}/kernel/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.ko.xz
+                    exec gosh
+                  '';
+                };
               in
                 callPackage ./images/linuxboot/u-root-initrd.nix {
                   extraPaths = [
                     {
-                      src = "${kernel}/lib/modules/${kernel.modDirVersion}/";
-                      dest = "/lib/modules/${kernel.modDirVersion}";
+                      src = "${kernel}${kernelModDir}/";
+                      dest = kernelModDir;
                     }
                     {
                       src = "${modscan}/";
                       dest = "/";
+                    }
+                    {
+                      src = postInitScript;
+                      dest = "/post-init";
                     }
                   ];
                 };
@@ -116,7 +132,7 @@
 
               linuxboot-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg;
-                kernelCmdline = "console=ttyS0,115200n8";
+                kernelCmdline = "console=ttyS0,115200n8 uroot.uinitargs=\"-c 'source /post-init'\"";
               };
 
               linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
