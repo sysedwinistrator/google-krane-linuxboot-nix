@@ -41,7 +41,6 @@
                     modprobe panel_boe_tv101wum_nl6
                     modprobe mmc_block
                     modprobe cros_ec_keyb
-                    getty tty0
                     exec gosh
                   '';
                 };
@@ -135,7 +134,7 @@
 
               linuxboot-depthcharge-img = callPackage ./images/mkDepthchargeImage.nix {
                 uimg = self.packages."${system}".linuxboot-uimg;
-                kernelCmdline = "console=ttyS0,115200n8 uroot.uinitargs=\"-c 'source /post-init'\"";
+                kernelCmdline = "console=ttyS0,115200n8 console=tty0 uroot.uinitargs=\"-c 'source /post-init'\"";
               };
 
               linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
