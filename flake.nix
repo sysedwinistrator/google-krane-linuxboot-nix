@@ -39,6 +39,7 @@
                   text = ''
                     modscan load
                     modprobe panel_boe_tv101wum_nl6
+                    modprobe mmc_block
                     getty tty0
                     exec gosh
                   '';
