@@ -38,7 +38,7 @@
                   name = "linuxboot-post-init-script";
                   text = ''
                     modscan load
-                    insmod ${kernelModDir}/kernel/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.ko.xz
+                    modprobe panel_boe_tv101wum_nl6
                     getty tty0
                     exec gosh
                   '';
