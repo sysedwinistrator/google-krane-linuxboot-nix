@@ -31,8 +31,6 @@
               linuxboot-initrd = let
                 inherit (self.packages."${system}") kernel;
 
-                kernelModDir = "/lib/modules/${kernel.modDirVersion}";
-
                 kernelModules = [
                   # Input
                   "cros-ec-keyb"
@@ -51,6 +49,14 @@
                   "sbs-battery"
                 ];
 
+                modulesClosure = pkgs.makeModulesClosure {
+                  rootModules = kernelModules;
+                  inherit kernel;
+                  firmware = [pkgs.linux-firmware];
+                  allowMissing = false;
+                  extraFirmwarePaths = [];
+                };
+
                 modprobeCommands = concatStringsSep "\n" (map (module: "modprobe ${module}") kernelModules);
 
                 # Script to be sourced by gosh after init
@@ -66,8 +72,8 @@
                 callPackage ./images/linuxboot/u-root-initrd.nix {
                   extraPaths = [
                     {
-                      src = "${kernel}${kernelModDir}/";
-                      dest = kernelModDir;
+                      src = "${modulesClosure}/";
+                      dest = "/";
                     }
                     {
                       src = postInitScript;
