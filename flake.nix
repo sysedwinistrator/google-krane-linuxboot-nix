@@ -29,18 +29,36 @@
               depthcharge-tools = callPackage ./pkgs/depthcharge-tools.nix {};
 
               linuxboot-initrd = let
-                inherit (self.packages."${system}") kernel modscan;
+                inherit (self.packages."${system}") kernel;
 
                 kernelModDir = "/lib/modules/${kernel.modDirVersion}";
+
+                kernelModules = [
+                  # Input
+                  "cros-ec-keyb"
+                  "hid-google-hammer"
+                  "hid-multitouch"
+
+                  # Output
+                  "mediatek-drm"
+                  "panel-boe-tv101wum-nl6"
+                  "phy-mtk-mipi-dsi-drv"
+                  "pwm-bl"
+                  "pwm-mtk-disp"
+
+                  # Misc
+                  "mmc-block"
+                  "sbs-battery"
+                ];
+
+                modprobeCommands = concatStringsSep "\n" (map (module: "modprobe ${module}") kernelModules);
 
                 # Script to be sourced by gosh after init
                 postInitScript = pkgs.writeTextFile {
                   name = "linuxboot-post-init-script";
                   text = ''
-                    modscan load
-                    modprobe panel_boe_tv101wum_nl6
-                    modprobe mmc_block
-                    modprobe cros_ec_keyb
+                    ${modprobeCommands}
+
                     exec boot -reuse none -remove none
                   '';
                 };
@@ -50,10 +68,6 @@
                     {
                       src = "${kernel}${kernelModDir}/";
                       dest = kernelModDir;
-                    }
-                    {
-                      src = "${modscan}/";
-                      dest = "/";
                     }
                     {
                       src = postInitScript;
