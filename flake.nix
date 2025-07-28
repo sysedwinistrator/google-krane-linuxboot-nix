@@ -41,7 +41,7 @@
                     modprobe panel_boe_tv101wum_nl6
                     modprobe mmc_block
                     modprobe cros_ec_keyb
-                    exec gosh
+                    exec boot -reuse none -remove none
                   '';
                 };
               in
