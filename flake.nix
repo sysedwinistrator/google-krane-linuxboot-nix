@@ -9,7 +9,7 @@
     nixpkgs,
     flake-utils,
   }: let
-    inherit (builtins) concatStringsSep mapAttrs;
+    inherit (builtins) concatStringsSep;
     inherit (nixpkgs.lib.attrsets) recursiveUpdate;
     eachSystem = expr:
       flake-utils.lib.eachSystem [
@@ -82,34 +82,6 @@
                   ];
                 };
 
-              linuxboot-initrd-pm = let
-                inherit (self.packages."${system}") pmKernel;
-              in
-                callPackage ./images/linuxboot/initrd.nix {
-                  uroot = self.packages."${system}".uroot;
-                  extraFiles = [
-                    "${pmKernel}/lib/modules/${pmKernel.modDirVersion}:/lib/modules"
-                  ];
-                };
-
-              pmKernel = pkgs.stdenv.mkDerivation rec {
-                name = "pmkernelapk";
-                version = "6.1.39";
-                src = pkgs.fetchurl {
-                  url = "https://mirror.postmarketos.org/postmarketos/master/aarch64/linux-postmarketos-mediatek-mt8183-${version}-r0.apk";
-                  sha256 = "sha256-88uCg7z86RChIsb5Q39CoQsk+V0+GniHFab/XGAFPwE=";
-                };
-                unpackPhase = "true";
-                buildPhase = "true";
-                installPhase = ''
-                  mkdir $out
-                  tar -C $out -xf $src
-                  cat $out/boot/vmlinuz | gzip -d > $out/boot/Image
-                '';
-                fixupPhase = "true";
-                modDirVersion = "${version}-mt8183";
-              };
-
               linuxboot-uimg = let
                 inherit (self.packages."${system}") kernel linuxboot-initrd;
               in
@@ -117,15 +89,6 @@
                   kernelPath = "${kernel}/Image";
                   dtbPath = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
                   initrdPath = linuxboot-initrd;
-                };
-
-              linuxboot-uimg-pm = let
-                inherit (self.packages."${system}") pmKernel linuxboot-initrd-pm;
-              in
-                callPackage ./images/mkuImage.nix {
-                  kernelPath = "${pmKernel}/boot/Image";
-                  dtbPath = "${pmKernel}/boot/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
-                  initrdPath = linuxboot-initrd-pm;
                 };
 
               nixos-uimg = let
@@ -157,11 +120,6 @@
                 kernelCmdline = "console=ttyS0,115200n8 console=tty0 uroot.uinitargs=\"-c 'source /post-init'\"";
               };
 
-              linuxboot-depthcharge-img-pm = callPackage ./images/mkDepthchargeImage.nix {
-                uimg = self.packages."${system}".linuxboot-uimg-pm;
-                kernelCmdline = "console=ttyS0 console=tty0 init=/bin/init";
-              };
-
               linuxboot-depthcharge-img-tools = let
                 inherit (self.packages."${system}") depthcharge-tools kernel linuxboot-initrd;
               in
@@ -185,13 +143,6 @@
               in
                 callPackage ./images/mkChromebookImage.nix {
                   bootImg = "${linuxboot-depthcharge-img-tools}/image/image";
-                };
-
-              linuxboot-image-pm = let
-                inherit (self.packages."${system}") linuxboot-depthcharge-img-pm;
-              in
-                callPackage ./images/mkChromebookImage.nix {
-                  bootImg = "${linuxboot-depthcharge-img-pm}/image/image";
                 };
 
               nixos-rootfs = callPackage "${nixpkgs.outPath}/nixos/lib/make-ext4-fs.nix" {
@@ -300,11 +251,6 @@
             environment.systemPackages = [self.packages.aarch64-linux.modscan];
           })
         ];
-      };
-
-      hydraJobs = {
-        nixosConfigurations = mapAttrs (name: value: nixpkgs.lib.hydraJob value.config.system.build.toplevel) self.nixosConfigurations;
-        packages.x86_64-linux = mapAttrs (name: value: nixpkgs.lib.hydraJob value) self.packages.x86_64-linux;
       };
     };
 }
