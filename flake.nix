@@ -35,7 +35,6 @@
             };
             vendorHash = null;
           };
-          depthcharge-tools = pkgs.callPackage ./pkgs/depthcharge-tools.nix {};
 
           linuxboot-initrd = let
             inherit (config.packages) kernel;
@@ -105,29 +104,11 @@
             kernelCmdline = "console=ttyS0,115200n8 console=tty0 uroot.uinitargs=\"-c 'source /post-init'\"";
           };
 
-          linuxboot-depthcharge-img-tools = let
-            inherit (config.packages) depthcharge-tools kernel linuxboot-initrd;
-          in
-            pkgs.callPackage ./images/mkDepthchargeImageTools.nix {
-              kernel = "${kernel}/Image";
-              dtb = "${kernel}/dtbs/mediatek/mt8183-kukui-krane-sku176.dtb";
-              initrd = linuxboot-initrd;
-              inherit depthcharge-tools;
-              cmdline = "console=ttyS0,115200 console=ttyS1,115200 console=tty0 console=tty1 init=/bin/init";
-            };
-
           linuxboot-image = let
             inherit (config.packages) linuxboot-depthcharge-img;
           in
             pkgs.callPackage ./images/mkChromebookImage.nix {
               bootImg = "${linuxboot-depthcharge-img}/image/image";
-            };
-
-          linuxboot-image-tools = let
-            inherit (config.packages) linuxboot-depthcharge-img-tools;
-          in
-            pkgs.callPackage ./images/mkChromebookImage.nix {
-              bootImg = "${linuxboot-depthcharge-img-tools}/image/image";
             };
         };
       };
