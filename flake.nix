@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
   };
@@ -45,7 +45,7 @@
         };
       };
 
-      overlays.default = final: prev: {
+      flake.overlays.default = final: prev: {
         nixosBootPkgs = config.packages."${final.stdenv.hostPlatform.system}";
       };
     });
