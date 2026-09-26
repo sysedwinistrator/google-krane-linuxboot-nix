@@ -3,6 +3,11 @@
   u-root,
   go,
   extraPaths,
+  urootPkgs ? [
+    "core"
+    "boot"
+    "./cmds/exp/modprobe"
+  ]
 }:
 stdenv.mkDerivation {
   name = "initrd.cpio";
@@ -23,7 +28,8 @@ stdenv.mkDerivation {
 
   buildPhase = let
     extraFileArgs = builtins.concatStringsSep " " (map (path: "-files ${path.src}:${path.dest}") extraPaths);
+    urootPkgsArgs = builtins.concatStringsSep " " urootPkgs;
   in ''
-    u-root -v -o $out -build bb -uinitcmd=/bbin/gosh -defaultsh=/bbin/gosh ${extraFileArgs} core boot ./cmds/exp/modprobe
+    u-root -v -o $out -build bb -uinitcmd=/bbin/gosh -defaultsh=/bbin/gosh ${extraFileArgs} ${urootPkgsArgs}
   '';
 }
